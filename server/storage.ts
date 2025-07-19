@@ -8,6 +8,8 @@ import {
   type InsertCarWashService, type InsertInventoryItem, type InsertSupplier,
   type InsertPurchase, type InsertPurchaseItem, type InsertSale, type InsertSaleService
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -66,285 +68,296 @@ export interface IStorage {
   createSaleService(saleService: InsertSaleService): Promise<SaleService>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private customers: Map<number, Customer>;
-  private vehicles: Map<number, Vehicle>;
-  private carWashServices: Map<number, CarWashService>;
-  private inventoryItems: Map<number, InventoryItem>;
-  private suppliers: Map<number, Supplier>;
-  private purchases: Map<number, Purchase>;
-  private purchaseItems: Map<number, PurchaseItem>;
-  private sales: Map<number, Sale>;
-  private saleServices: Map<number, SaleService>;
-  private currentId: number;
-
+export class DatabaseStorage implements IStorage {
   constructor() {
-    this.users = new Map();
-    this.customers = new Map();
-    this.vehicles = new Map();
-    this.carWashServices = new Map();
-    this.inventoryItems = new Map();
-    this.suppliers = new Map();
-    this.purchases = new Map();
-    this.purchaseItems = new Map();
-    this.sales = new Map();
-    this.saleServices = new Map();
-    this.currentId = 1;
-    this.seedData();
+    this.initializeDatabase();
   }
 
-  private seedData() {
-    // Create admin user
-    this.createUser({
-      username: "DENNIS CASTILLO",
-      password: "742211010338",
-      role: "admin"
-    });
+  private async initializeDatabase() {
+    try {
+      // Check if admin user exists, if not seed the database
+      const adminUser = await this.getUserByUsername("DENNIS CASTILLO");
+      if (!adminUser) {
+        await this.seedData();
+      }
+    } catch (error) {
+      console.log("Database not yet initialized, will seed on first operation");
+    }
+  }
 
-    // Seed car wash services (precios en Lempiras)
-    const services: InsertCarWashService[] = [
-      { name: "Lavado Básico", description: "Lavado exterior básico", price: "150.00", estimatedMinutes: 30 },
-      { name: "Lavado Premium", description: "Lavado completo + encerado + aspirado", price: "280.00", estimatedMinutes: 45 },
-      { name: "Limpieza Interior", description: "Aspirado + limpieza tapicería", price: "120.00", estimatedMinutes: 20 },
-      { name: "Encerado", description: "Aplicación de cera protectora", price: "200.00", estimatedMinutes: 25 },
-      { name: "Lavado Completo", description: "Servicio completo interior y exterior", price: "350.00", estimatedMinutes: 65 }
-    ];
+  private async seedData() {
+    try {
+      // Create admin user
+      await this.createUser({
+        username: "DENNIS CASTILLO",
+        password: "742211010338",
+        role: "admin"
+      });
 
-    services.forEach(service => this.createCarWashService(service));
+      // Seed car wash services (precios en Lempiras)
+      const services: InsertCarWashService[] = [
+        { name: "Lavado Básico", description: "Lavado exterior básico", price: "150.00", estimatedMinutes: 30 },
+        { name: "Lavado Premium", description: "Lavado completo + encerado + aspirado", price: "280.00", estimatedMinutes: 45 },
+        { name: "Limpieza Interior", description: "Aspirado + limpieza tapicería", price: "120.00", estimatedMinutes: 20 },
+        { name: "Encerado", description: "Aplicación de cera protectora", price: "200.00", estimatedMinutes: 25 },
+        { name: "Lavado Completo", description: "Servicio completo interior y exterior", price: "350.00", estimatedMinutes: 65 }
+      ];
 
-    // Seed inventory items (precios en Lempiras)
-    const items: InsertInventoryItem[] = [
-      { name: "Champú Premium", description: "Champú para lavado de vehículos", currentStock: "24.00", minStock: "10.00", unit: "L", costPerUnit: "210.00" },
-      { name: "Cera Líquida", description: "Cera protectora líquida", currentStock: "8.00", minStock: "12.00", unit: "L", costPerUnit: "370.00" },
-      { name: "Desengrasante", description: "Producto para eliminar grasa", currentStock: "2.00", minStock: "8.00", unit: "L", costPerUnit: "295.00" },
-      { name: "Toallas Microfibra", description: "Toallas de microfibra para secado", currentStock: "45.00", minStock: "20.00", unit: "und", costPerUnit: "85.00" },
-      { name: "Aspiradora Industrial", description: "Equipo de aspirado industrial", currentStock: "3.00", minStock: "2.00", unit: "und", costPerUnit: "11000.00" }
-    ];
+      for (const service of services) {
+        await this.createCarWashService(service);
+      }
 
-    items.forEach(item => this.createInventoryItem(item));
+      // Seed inventory items (precios en Lempiras)
+      const items: InsertInventoryItem[] = [
+        { name: "Champú Premium", description: "Champú para lavado de vehículos", currentStock: "24.00", minStock: "10.00", unit: "L", costPerUnit: "210.00" },
+        { name: "Cera Líquida", description: "Cera protectora líquida", currentStock: "8.00", minStock: "12.00", unit: "L", costPerUnit: "370.00" },
+        { name: "Desengrasante", description: "Producto para eliminar grasa", currentStock: "2.00", minStock: "8.00", unit: "L", costPerUnit: "295.00" },
+        { name: "Toallas Microfibra", description: "Toallas de microfibra para secado", currentStock: "45.00", minStock: "20.00", unit: "und", costPerUnit: "85.00" },
+        { name: "Aspiradora Industrial", description: "Equipo de aspirado industrial", currentStock: "3.00", minStock: "2.00", unit: "und", costPerUnit: "11000.00" }
+      ];
 
-    // Seed suppliers
-    const suppliers: InsertSupplier[] = [
-      { name: "Distribuidora Central", contact: "Carlos Mejía", phone: "9988-7766", email: "ventas@distribuidoracentral.hn", address: "San Pedro Sula, Cortés" },
-      { name: "Productos de Limpieza HN", contact: "María González", phone: "9755-4433", email: "info@limpiezahn.com", address: "Tegucigalpa, Francisco Morazán" },
-      { name: "Equipos Industriales del Norte", contact: "Roberto Fernández", phone: "9611-2299", email: "equipos@industrialnorte.hn", address: "Choloma, Cortés" }
-    ];
+      for (const item of items) {
+        await this.createInventoryItem(item);
+      }
 
-    suppliers.forEach(supplier => this.createSupplier(supplier));
+      // Seed suppliers
+      const suppliersData: InsertSupplier[] = [
+        { name: "Distribuidora Central", contact: "Carlos Mejía", phone: "9988-7766", email: "ventas@distribuidoracentral.hn", address: "San Pedro Sula, Cortés" },
+        { name: "Productos de Limpieza HN", contact: "María González", phone: "9755-4433", email: "info@limpiezahn.com", address: "Tegucigalpa, Francisco Morazán" },
+        { name: "Equipos Industriales del Norte", contact: "Roberto Fernández", phone: "9611-2299", email: "equipos@industrialnorte.hn", address: "Choloma, Cortés" }
+      ];
+
+      for (const supplier of suppliersData) {
+        await this.createSupplier(supplier);
+      }
+      
+      console.log("Database seeded successfully");
+    } catch (error) {
+      console.error("Error seeding database:", error);
+    }
   }
 
   // Users
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.username === username);
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentId++;
-    const user: User = { 
-      ...insertUser, 
-      id,
-      role: insertUser.role || "user"
-    };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values({
+        ...insertUser,
+        role: insertUser.role || "user"
+      })
+      .returning();
     return user;
   }
 
   // Customers
   async getCustomers(): Promise<Customer[]> {
-    return Array.from(this.customers.values());
+    return await db.select().from(customers);
   }
 
   async getCustomer(id: number): Promise<Customer | undefined> {
-    return this.customers.get(id);
+    const [customer] = await db.select().from(customers).where(eq(customers.id, id));
+    return customer || undefined;
   }
 
   async createCustomer(insertCustomer: InsertCustomer): Promise<Customer> {
-    const id = this.currentId++;
-    const customer: Customer = { 
-      ...insertCustomer, 
-      id,
-      email: insertCustomer.email || null,
-      phone: insertCustomer.phone || null
-    };
-    this.customers.set(id, customer);
+    const [customer] = await db
+      .insert(customers)
+      .values({
+        ...insertCustomer,
+        email: insertCustomer.email || null,
+        phone: insertCustomer.phone || null
+      })
+      .returning();
     return customer;
   }
 
   // Vehicles
   async getVehicles(): Promise<Vehicle[]> {
-    return Array.from(this.vehicles.values());
+    return await db.select().from(vehicles);
   }
 
   async getVehiclesByCustomer(customerId: number): Promise<Vehicle[]> {
-    return Array.from(this.vehicles.values()).filter(v => v.customerId === customerId);
+    return await db.select().from(vehicles).where(eq(vehicles.customerId, customerId));
   }
 
   async getVehicle(id: number): Promise<Vehicle | undefined> {
-    return this.vehicles.get(id);
+    const [vehicle] = await db.select().from(vehicles).where(eq(vehicles.id, id));
+    return vehicle || undefined;
   }
 
   async createVehicle(insertVehicle: InsertVehicle): Promise<Vehicle> {
-    const id = this.currentId++;
-    const vehicle: Vehicle = { 
-      ...insertVehicle, 
-      id,
-      color: insertVehicle.color || null,
-      brand: insertVehicle.brand || null,
-      model: insertVehicle.model || null,
-      year: insertVehicle.year || null,
-      customerId: insertVehicle.customerId || null
-    };
-    this.vehicles.set(id, vehicle);
+    const [vehicle] = await db
+      .insert(vehicles)
+      .values({
+        ...insertVehicle,
+        color: insertVehicle.color || null,
+        brand: insertVehicle.brand || null,
+        model: insertVehicle.model || null,
+        year: insertVehicle.year || null,
+        customerId: insertVehicle.customerId || null
+      })
+      .returning();
     return vehicle;
   }
 
   // Services
   async getCarWashServices(): Promise<CarWashService[]> {
-    return Array.from(this.carWashServices.values());
+    return await db.select().from(carWashServices);
   }
 
   async getCarWashService(id: number): Promise<CarWashService | undefined> {
-    return this.carWashServices.get(id);
+    const [service] = await db.select().from(carWashServices).where(eq(carWashServices.id, id));
+    return service || undefined;
   }
 
   async createCarWashService(insertService: InsertCarWashService): Promise<CarWashService> {
-    const id = this.currentId++;
-    const service: CarWashService = { 
-      ...insertService, 
-      id,
-      description: insertService.description || null,
-      isActive: insertService.isActive !== undefined ? insertService.isActive : true
-    };
-    this.carWashServices.set(id, service);
+    const [service] = await db
+      .insert(carWashServices)
+      .values({
+        ...insertService,
+        description: insertService.description || null,
+        isActive: insertService.isActive !== undefined ? insertService.isActive : true
+      })
+      .returning();
     return service;
   }
 
   async updateCarWashService(id: number, updates: Partial<InsertCarWashService>): Promise<CarWashService | undefined> {
-    const service = this.carWashServices.get(id);
-    if (!service) return undefined;
-    
-    const updated = { ...service, ...updates };
-    this.carWashServices.set(id, updated);
-    return updated;
+    const [service] = await db
+      .update(carWashServices)
+      .set(updates)
+      .where(eq(carWashServices.id, id))
+      .returning();
+    return service || undefined;
   }
 
   // Inventory
   async getInventoryItems(): Promise<InventoryItem[]> {
-    return Array.from(this.inventoryItems.values());
+    return await db.select().from(inventoryItems);
   }
 
   async getInventoryItem(id: number): Promise<InventoryItem | undefined> {
-    return this.inventoryItems.get(id);
+    const [item] = await db.select().from(inventoryItems).where(eq(inventoryItems.id, id));
+    return item || undefined;
   }
 
   async createInventoryItem(insertItem: InsertInventoryItem): Promise<InventoryItem> {
-    const id = this.currentId++;
-    const item: InventoryItem = { 
-      ...insertItem, 
-      id,
-      description: insertItem.description || null
-    };
-    this.inventoryItems.set(id, item);
+    const [item] = await db
+      .insert(inventoryItems)
+      .values({
+        ...insertItem,
+        description: insertItem.description || null
+      })
+      .returning();
     return item;
   }
 
   async updateInventoryItem(id: number, updates: Partial<InsertInventoryItem>): Promise<InventoryItem | undefined> {
-    const item = this.inventoryItems.get(id);
-    if (!item) return undefined;
-    
-    const updated = { ...item, ...updates };
-    this.inventoryItems.set(id, updated);
-    return updated;
+    const [item] = await db
+      .update(inventoryItems)
+      .set(updates)
+      .where(eq(inventoryItems.id, id))
+      .returning();
+    return item || undefined;
   }
 
   async getLowStockItems(): Promise<InventoryItem[]> {
-    return Array.from(this.inventoryItems.values()).filter(
+    const items = await db.select().from(inventoryItems);
+    return items.filter(
       item => parseFloat(item.currentStock) <= parseFloat(item.minStock)
     );
   }
 
   // Suppliers
   async getSuppliers(): Promise<Supplier[]> {
-    return Array.from(this.suppliers.values());
+    return await db.select().from(suppliers);
   }
 
   async getSupplier(id: number): Promise<Supplier | undefined> {
-    return this.suppliers.get(id);
+    const [supplier] = await db.select().from(suppliers).where(eq(suppliers.id, id));
+    return supplier || undefined;
   }
 
   async createSupplier(insertSupplier: InsertSupplier): Promise<Supplier> {
-    const id = this.currentId++;
-    const supplier: Supplier = { 
-      ...insertSupplier, 
-      id,
-      contact: insertSupplier.contact || null,
-      phone: insertSupplier.phone || null,
-      email: insertSupplier.email || null,
-      address: insertSupplier.address || null
-    };
-    this.suppliers.set(id, supplier);
+    const [supplier] = await db
+      .insert(suppliers)
+      .values({
+        ...insertSupplier,
+        contact: insertSupplier.contact || null,
+        phone: insertSupplier.phone || null,
+        email: insertSupplier.email || null,
+        address: insertSupplier.address || null
+      })
+      .returning();
     return supplier;
   }
 
   // Purchases
   async getPurchases(): Promise<Purchase[]> {
-    return Array.from(this.purchases.values());
+    return await db.select().from(purchases);
   }
 
   async getPurchase(id: number): Promise<Purchase | undefined> {
-    return this.purchases.get(id);
+    const [purchase] = await db.select().from(purchases).where(eq(purchases.id, id));
+    return purchase || undefined;
   }
 
   async createPurchase(insertPurchase: InsertPurchase): Promise<Purchase> {
-    const id = this.currentId++;
-    const purchase: Purchase = { 
-      ...insertPurchase, 
-      id, 
-      purchaseDate: new Date(),
-      status: insertPurchase.status || "pending",
-      supplierId: insertPurchase.supplierId || null,
-      invoiceNumber: insertPurchase.invoiceNumber || null
-    };
-    this.purchases.set(id, purchase);
+    const [purchase] = await db
+      .insert(purchases)
+      .values({
+        ...insertPurchase,
+        purchaseDate: new Date(),
+        status: insertPurchase.status || "pending",
+        supplierId: insertPurchase.supplierId || null,
+        invoiceNumber: insertPurchase.invoiceNumber || null
+      })
+      .returning();
     return purchase;
   }
 
   // Sales
   async getSales(): Promise<Sale[]> {
-    return Array.from(this.sales.values());
+    return await db.select().from(sales);
   }
 
   async getSale(id: number): Promise<Sale | undefined> {
-    return this.sales.get(id);
+    const [sale] = await db.select().from(sales).where(eq(sales.id, id));
+    return sale || undefined;
   }
 
   async createSale(insertSale: InsertSale): Promise<Sale> {
-    const id = this.currentId++;
-    const sale: Sale = { 
-      ...insertSale, 
-      id, 
-      saleDate: new Date(),
-      status: insertSale.status || "pending",
-      customerId: insertSale.customerId || null,
-      vehicleId: insertSale.vehicleId || null,
-      estimatedCompletionTime: insertSale.estimatedCompletionTime || null
-    };
-    this.sales.set(id, sale);
+    const [sale] = await db
+      .insert(sales)
+      .values({
+        ...insertSale,
+        saleDate: new Date(),
+        status: insertSale.status || "pending",
+        customerId: insertSale.customerId || null,
+        vehicleId: insertSale.vehicleId || null,
+        estimatedCompletionTime: insertSale.estimatedCompletionTime || null
+      })
+      .returning();
     return sale;
   }
 
   async updateSaleStatus(id: number, status: string): Promise<Sale | undefined> {
-    const sale = this.sales.get(id);
-    if (!sale) return undefined;
-    
-    const updated = { ...sale, status };
-    this.sales.set(id, updated);
-    return updated;
+    const [sale] = await db
+      .update(sales)
+      .set({ status })
+      .where(eq(sales.id, id))
+      .returning();
+    return sale || undefined;
   }
 
   async getSalesMetrics(): Promise<{
@@ -356,9 +369,12 @@ export class MemStorage implements IStorage {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    const todaySales = Array.from(this.sales.values()).filter(
-      sale => sale.saleDate >= today
-    );
+    const allSales = await db.select().from(sales);
+    const todaySales = allSales.filter(sale => {
+      const saleDate = new Date(sale.saleDate);
+      saleDate.setHours(0, 0, 0, 0);
+      return saleDate.getTime() === today.getTime();
+    });
     
     const dailySales = todaySales.reduce((sum, sale) => sum + parseFloat(sale.totalAmount), 0);
     const servicesCompleted = todaySales.filter(sale => sale.status === 'completed').length;
@@ -379,21 +395,21 @@ export class MemStorage implements IStorage {
 
   // Sale Services
   async getSaleServices(saleId: number): Promise<SaleService[]> {
-    return Array.from(this.saleServices.values()).filter(ss => ss.saleId === saleId);
+    return await db.select().from(saleServices).where(eq(saleServices.saleId, saleId));
   }
 
   async createSaleService(insertSaleService: InsertSaleService): Promise<SaleService> {
-    const id = this.currentId++;
-    const saleService: SaleService = { 
-      ...insertSaleService, 
-      id,
-      saleId: insertSaleService.saleId || null,
-      serviceId: insertSaleService.serviceId || null,
-      quantity: insertSaleService.quantity || 1
-    };
-    this.saleServices.set(id, saleService);
+    const [saleService] = await db
+      .insert(saleServices)
+      .values({
+        ...insertSaleService,
+        saleId: insertSaleService.saleId || null,
+        serviceId: insertSaleService.serviceId || null,
+        quantity: insertSaleService.quantity || 1
+      })
+      .returning();
     return saleService;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

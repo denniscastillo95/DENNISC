@@ -2,7 +2,7 @@
 
 ## Overview
 
-Sistema ERP completo para Carwash Peña Blanca en Honduras, desarrollado con React, Express, TypeScript, y almacenamiento en memoria. El sistema incluye facturación con estándares hondureños, gestión de inventario, módulo de compras con proveedores, y reportes de ventas (diarios, semanales, mensuales). Utiliza Lempiras como moneda y sigue las normas de facturación de Honduras.
+Sistema ERP completo para Carwash Peña Blanca en Honduras, desarrollado con React, Express, TypeScript, y base de datos PostgreSQL local. El sistema incluye facturación con estándares hondureños, gestión de inventario, módulo de compras con proveedores, y reportes de ventas (diarios, semanales, mensuales). Utiliza Lempiras como moneda y sigue las normas de facturación de Honduras. Todos los datos se guardan localmente en la computadora donde se instala el programa.
 
 ## User Preferences
 
@@ -14,6 +14,11 @@ Currency: Honduran Lempiras (L)
 Tax Rate: 15% (Impuesto sobre Ventas)
 
 ## Recent Changes (July 19, 2025)
+- ✓ **MIGRATED TO DATABASE**: Successfully migrated entire system from in-memory storage to PostgreSQL database
+- ✓ Updated all storage operations to use Drizzle ORM with proper database queries
+- ✓ All data now persists locally on PC where program is installed via PostgreSQL
+- ✓ Database schema pushed successfully with all required tables
+- ✓ Fixed all storage interface implementations for database persistence
 - ✓ Updated entire system to use Honduran Lempiras (L) instead of USD
 - ✓ Fixed purchase module with complete form for creating new purchases and suppliers
 - ✓ Updated company information to Carwash Peña Blanca with Honduras-specific details
@@ -21,7 +26,6 @@ Tax Rate: 15% (Impuesto sobre Ventas)
 - ✓ Changed tax rate from 16% to 15% following Honduran standards
 - ✓ Added supplier management with contact information
 - ✓ Created invoice formatting components for Honduran billing standards
-- ✓ Fixed TypeScript errors in storage layer
 
 ## System Architecture
 
