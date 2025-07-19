@@ -310,7 +310,7 @@ export default function Services() {
                 <div>
                   <p className="text-sm text-gray-600">Precio Promedio</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    ${activeServices.length > 0 
+                    L {activeServices.length > 0 
                       ? (activeServices.reduce((sum, s) => sum + parseFloat(s.price), 0) / activeServices.length).toFixed(2)
                       : '0.00'
                     }
@@ -348,7 +348,7 @@ export default function Services() {
                 <div>
                   <p className="text-sm text-gray-600">Servicio Más Caro</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    ${activeServices.length > 0 
+                    L {activeServices.length > 0 
                       ? Math.max(...activeServices.map(s => parseFloat(s.price))).toFixed(2)
                       : '0.00'
                     }
@@ -391,7 +391,7 @@ export default function Services() {
                         <p className="truncate">{service.description || "Sin descripción"}</p>
                       </TableCell>
                       <TableCell className="font-medium text-car-blue">
-                        ${parseFloat(service.price).toFixed(2)}
+                        L {parseFloat(service.price).toFixed(2)}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-1">

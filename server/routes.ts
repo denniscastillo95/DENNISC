@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertCustomerSchema, insertVehicleSchema, insertSaleSchema, insertSaleServiceSchema, insertCarWashServiceSchema, insertInventoryItemSchema } from "@shared/schema";
+import { insertCustomerSchema, insertVehicleSchema, insertSaleSchema, insertSaleServiceSchema, insertCarWashServiceSchema, insertInventoryItemSchema, insertSupplierSchema, insertPurchaseSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -106,6 +106,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/suppliers", async (_req, res) => {
     const suppliers = await storage.getSuppliers();
     res.json(suppliers);
+  });
+
+  app.post("/api/suppliers", async (req, res) => {
+    try {
+      const supplierData = insertSupplierSchema.parse(req.body);
+      const supplier = await storage.createSupplier(supplierData);
+      res.json(supplier);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid supplier data" });
+    }
+  });
+
+  // Purchases
+  app.get("/api/purchases", async (_req, res) => {
+    const purchases = await storage.getPurchases();
+    res.json(purchases);
+  });
+
+  app.post("/api/purchases", async (req, res) => {
+    try {
+      const purchaseData = insertPurchaseSchema.parse(req.body);
+      const purchase = await storage.createPurchase(purchaseData);
+      res.json(purchase);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid purchase data" });
+    }
   });
 
   // Sales

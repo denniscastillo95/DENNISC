@@ -95,27 +95,43 @@ export class MemStorage implements IStorage {
   }
 
   private seedData() {
-    // Seed car wash services
+    // Create admin user
+    this.createUser({
+      username: "DENNIS CASTILLO",
+      password: "742211010338",
+      role: "admin"
+    });
+
+    // Seed car wash services (precios en Lempiras)
     const services: InsertCarWashService[] = [
-      { name: "Lavado Básico", description: "Lavado exterior básico", price: "25.00", estimatedMinutes: 30 },
-      { name: "Lavado Premium", description: "Lavado completo + encerado + aspirado", price: "45.00", estimatedMinutes: 45 },
-      { name: "Limpieza Interior", description: "Aspirado + limpieza tapicería", price: "20.00", estimatedMinutes: 20 },
-      { name: "Encerado", description: "Aplicación de cera protectora", price: "35.00", estimatedMinutes: 25 },
-      { name: "Lavado Completo", description: "Servicio completo interior y exterior", price: "65.00", estimatedMinutes: 65 }
+      { name: "Lavado Básico", description: "Lavado exterior básico", price: "150.00", estimatedMinutes: 30 },
+      { name: "Lavado Premium", description: "Lavado completo + encerado + aspirado", price: "280.00", estimatedMinutes: 45 },
+      { name: "Limpieza Interior", description: "Aspirado + limpieza tapicería", price: "120.00", estimatedMinutes: 20 },
+      { name: "Encerado", description: "Aplicación de cera protectora", price: "200.00", estimatedMinutes: 25 },
+      { name: "Lavado Completo", description: "Servicio completo interior y exterior", price: "350.00", estimatedMinutes: 65 }
     ];
 
     services.forEach(service => this.createCarWashService(service));
 
-    // Seed inventory items
+    // Seed inventory items (precios en Lempiras)
     const items: InsertInventoryItem[] = [
-      { name: "Champú Premium", description: "Champú para lavado de vehículos", currentStock: "24.00", minStock: "10.00", unit: "L", costPerUnit: "8.50" },
-      { name: "Cera Líquida", description: "Cera protectora líquida", currentStock: "8.00", minStock: "12.00", unit: "L", costPerUnit: "15.00" },
-      { name: "Desengrasante", description: "Producto para eliminar grasa", currentStock: "2.00", minStock: "8.00", unit: "L", costPerUnit: "12.00" },
-      { name: "Toallas Microfibra", description: "Toallas de microfibra para secado", currentStock: "45.00", minStock: "20.00", unit: "und", costPerUnit: "3.50" },
-      { name: "Aspiradora Industrial", description: "Equipo de aspirado industrial", currentStock: "3.00", minStock: "2.00", unit: "und", costPerUnit: "450.00" }
+      { name: "Champú Premium", description: "Champú para lavado de vehículos", currentStock: "24.00", minStock: "10.00", unit: "L", costPerUnit: "210.00" },
+      { name: "Cera Líquida", description: "Cera protectora líquida", currentStock: "8.00", minStock: "12.00", unit: "L", costPerUnit: "370.00" },
+      { name: "Desengrasante", description: "Producto para eliminar grasa", currentStock: "2.00", minStock: "8.00", unit: "L", costPerUnit: "295.00" },
+      { name: "Toallas Microfibra", description: "Toallas de microfibra para secado", currentStock: "45.00", minStock: "20.00", unit: "und", costPerUnit: "85.00" },
+      { name: "Aspiradora Industrial", description: "Equipo de aspirado industrial", currentStock: "3.00", minStock: "2.00", unit: "und", costPerUnit: "11000.00" }
     ];
 
     items.forEach(item => this.createInventoryItem(item));
+
+    // Seed suppliers
+    const suppliers: InsertSupplier[] = [
+      { name: "Distribuidora Central", contact: "Carlos Mejía", phone: "9988-7766", email: "ventas@distribuidoracentral.hn", address: "San Pedro Sula, Cortés" },
+      { name: "Productos de Limpieza HN", contact: "María González", phone: "9755-4433", email: "info@limpiezahn.com", address: "Tegucigalpa, Francisco Morazán" },
+      { name: "Equipos Industriales del Norte", contact: "Roberto Fernández", phone: "9611-2299", email: "equipos@industrialnorte.hn", address: "Choloma, Cortés" }
+    ];
+
+    suppliers.forEach(supplier => this.createSupplier(supplier));
   }
 
   // Users
@@ -129,7 +145,11 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentId++;
-    const user: User = { ...insertUser, id };
+    const user: User = { 
+      ...insertUser, 
+      id,
+      role: insertUser.role || "user"
+    };
     this.users.set(id, user);
     return user;
   }
@@ -145,7 +165,12 @@ export class MemStorage implements IStorage {
 
   async createCustomer(insertCustomer: InsertCustomer): Promise<Customer> {
     const id = this.currentId++;
-    const customer: Customer = { ...insertCustomer, id };
+    const customer: Customer = { 
+      ...insertCustomer, 
+      id,
+      email: insertCustomer.email || null,
+      phone: insertCustomer.phone || null
+    };
     this.customers.set(id, customer);
     return customer;
   }
@@ -165,7 +190,15 @@ export class MemStorage implements IStorage {
 
   async createVehicle(insertVehicle: InsertVehicle): Promise<Vehicle> {
     const id = this.currentId++;
-    const vehicle: Vehicle = { ...insertVehicle, id };
+    const vehicle: Vehicle = { 
+      ...insertVehicle, 
+      id,
+      color: insertVehicle.color || null,
+      brand: insertVehicle.brand || null,
+      model: insertVehicle.model || null,
+      year: insertVehicle.year || null,
+      customerId: insertVehicle.customerId || null
+    };
     this.vehicles.set(id, vehicle);
     return vehicle;
   }
@@ -181,7 +214,12 @@ export class MemStorage implements IStorage {
 
   async createCarWashService(insertService: InsertCarWashService): Promise<CarWashService> {
     const id = this.currentId++;
-    const service: CarWashService = { ...insertService, id };
+    const service: CarWashService = { 
+      ...insertService, 
+      id,
+      description: insertService.description || null,
+      isActive: insertService.isActive !== undefined ? insertService.isActive : true
+    };
     this.carWashServices.set(id, service);
     return service;
   }
@@ -206,7 +244,11 @@ export class MemStorage implements IStorage {
 
   async createInventoryItem(insertItem: InsertInventoryItem): Promise<InventoryItem> {
     const id = this.currentId++;
-    const item: InventoryItem = { ...insertItem, id };
+    const item: InventoryItem = { 
+      ...insertItem, 
+      id,
+      description: insertItem.description || null
+    };
     this.inventoryItems.set(id, item);
     return item;
   }
@@ -237,7 +279,14 @@ export class MemStorage implements IStorage {
 
   async createSupplier(insertSupplier: InsertSupplier): Promise<Supplier> {
     const id = this.currentId++;
-    const supplier: Supplier = { ...insertSupplier, id };
+    const supplier: Supplier = { 
+      ...insertSupplier, 
+      id,
+      contact: insertSupplier.contact || null,
+      phone: insertSupplier.phone || null,
+      email: insertSupplier.email || null,
+      address: insertSupplier.address || null
+    };
     this.suppliers.set(id, supplier);
     return supplier;
   }
@@ -253,7 +302,14 @@ export class MemStorage implements IStorage {
 
   async createPurchase(insertPurchase: InsertPurchase): Promise<Purchase> {
     const id = this.currentId++;
-    const purchase: Purchase = { ...insertPurchase, id, purchaseDate: new Date() };
+    const purchase: Purchase = { 
+      ...insertPurchase, 
+      id, 
+      purchaseDate: new Date(),
+      status: insertPurchase.status || "pending",
+      supplierId: insertPurchase.supplierId || null,
+      invoiceNumber: insertPurchase.invoiceNumber || null
+    };
     this.purchases.set(id, purchase);
     return purchase;
   }
@@ -269,7 +325,15 @@ export class MemStorage implements IStorage {
 
   async createSale(insertSale: InsertSale): Promise<Sale> {
     const id = this.currentId++;
-    const sale: Sale = { ...insertSale, id, saleDate: new Date() };
+    const sale: Sale = { 
+      ...insertSale, 
+      id, 
+      saleDate: new Date(),
+      status: insertSale.status || "pending",
+      customerId: insertSale.customerId || null,
+      vehicleId: insertSale.vehicleId || null,
+      estimatedCompletionTime: insertSale.estimatedCompletionTime || null
+    };
     this.sales.set(id, sale);
     return sale;
   }
@@ -320,7 +384,13 @@ export class MemStorage implements IStorage {
 
   async createSaleService(insertSaleService: InsertSaleService): Promise<SaleService> {
     const id = this.currentId++;
-    const saleService: SaleService = { ...insertSaleService, id };
+    const saleService: SaleService = { 
+      ...insertSaleService, 
+      id,
+      saleId: insertSaleService.saleId || null,
+      serviceId: insertSaleService.serviceId || null,
+      quantity: insertSaleService.quantity || 1
+    };
     this.saleServices.set(id, saleService);
     return saleService;
   }

@@ -99,7 +99,7 @@ export default function Reports() {
                 <div>
                   <p className="text-sm text-gray-600">Ventas Hoy</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    ${calculateRevenue(todaySales).toFixed(2)}
+                    L {calculateRevenue(todaySales).toFixed(2)}
                   </p>
                   <p className="text-sm text-green-600">
                     {todaySales.length} transacciones
@@ -118,7 +118,7 @@ export default function Reports() {
                 <div>
                   <p className="text-sm text-gray-600">Esta Semana</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    ${calculateRevenue(weekSales).toFixed(2)}
+                    L {calculateRevenue(weekSales).toFixed(2)}
                   </p>
                   <p className="text-sm text-car-teal">
                     {weekSales.length} transacciones
@@ -137,7 +137,7 @@ export default function Reports() {
                 <div>
                   <p className="text-sm text-gray-600">Este Mes</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    ${calculateRevenue(monthSales).toFixed(2)}
+                    L {calculateRevenue(monthSales).toFixed(2)}
                   </p>
                   <p className="text-sm text-green-600">
                     {monthSales.length} transacciones
@@ -156,7 +156,7 @@ export default function Reports() {
                 <div>
                   <p className="text-sm text-gray-600">Promedio/Día</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    ${monthSales.length > 0 ? (calculateRevenue(monthSales) / 30).toFixed(2) : '0.00'}
+                    L {monthSales.length > 0 ? (calculateRevenue(monthSales) / 30).toFixed(2) : '0.00'}
                   </p>
                   <p className="text-sm text-purple-600">
                     Últimos 30 días
@@ -191,7 +191,7 @@ export default function Reports() {
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-sm font-medium">{methodLabel}</span>
                         <div className="text-right">
-                          <span className="text-sm font-bold">${amount.toFixed(2)}</span>
+                          <span className="text-sm font-bold">L {amount.toFixed(2)}</span>
                           <span className="text-xs text-gray-500 ml-2">
                             {percentage.toFixed(1)}%
                           </span>
@@ -297,8 +297,8 @@ export default function Reports() {
                           })}
                         </td>
                         <td className="py-3 px-4">{daySales.length}</td>
-                        <td className="py-3 px-4 font-medium">${dayRevenue.toFixed(2)}</td>
-                        <td className="py-3 px-4">${avgTransaction.toFixed(2)}</td>
+                        <td className="py-3 px-4 font-medium">L {dayRevenue.toFixed(2)}</td>
+                        <td className="py-3 px-4">L {avgTransaction.toFixed(2)}</td>
                       </tr>
                     );
                   })}

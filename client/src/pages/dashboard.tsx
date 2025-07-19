@@ -54,7 +54,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <MetricCard
             title="Ventas Hoy"
-            value={`$${metrics?.dailySales.toFixed(2) || '0.00'}`}
+            value={`L ${metrics?.dailySales.toFixed(2) || '0.00'}`}
             subtitle="vs ayer"
             icon={DollarSign}
             trend="↑ +12% vs ayer"

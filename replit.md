@@ -1,12 +1,27 @@
-# Car Wash POS System
+# Carwash Peña Blanca - Sistema ERP
 
 ## Overview
 
-This is a full-stack car wash point-of-sale (POS) system built with React, Express, TypeScript, and PostgreSQL. The application provides a comprehensive solution for managing car wash operations including customer management, service tracking, inventory control, and sales reporting.
+Sistema ERP completo para Carwash Peña Blanca en Honduras, desarrollado con React, Express, TypeScript, y almacenamiento en memoria. El sistema incluye facturación con estándares hondureños, gestión de inventario, módulo de compras con proveedores, y reportes de ventas (diarios, semanales, mensuales). Utiliza Lempiras como moneda y sigue las normas de facturación de Honduras.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Company Details: Carwash Peña Blanca, Peña Blanca, Cortés, Honduras
+Contact: 9464-8987, CARWASHPB@OUTLOOK.COM
+Admin: DENNIS CASTILLO, Password: 742211010338
+Currency: Honduran Lempiras (L)
+Tax Rate: 15% (Impuesto sobre Ventas)
+
+## Recent Changes (July 19, 2025)
+- ✓ Updated entire system to use Honduran Lempiras (L) instead of USD
+- ✓ Fixed purchase module with complete form for creating new purchases and suppliers
+- ✓ Updated company information to Carwash Peña Blanca with Honduras-specific details
+- ✓ Added admin user (DENNIS CASTILLO) with proper credentials
+- ✓ Changed tax rate from 16% to 15% following Honduran standards
+- ✓ Added supplier management with contact information
+- ✓ Created invoice formatting components for Honduran billing standards
+- ✓ Fixed TypeScript errors in storage layer
 
 ## System Architecture
 

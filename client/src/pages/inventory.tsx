@@ -334,7 +334,7 @@ export default function Inventory() {
                         <TableCell>{parseFloat(item.currentStock).toFixed(1)}</TableCell>
                         <TableCell>{parseFloat(item.minStock).toFixed(1)}</TableCell>
                         <TableCell>{item.unit}</TableCell>
-                        <TableCell>${parseFloat(item.costPerUnit).toFixed(2)}</TableCell>
+                        <TableCell>L {parseFloat(item.costPerUnit).toFixed(2)}</TableCell>
                         <TableCell>
                           <Badge variant={status.variant} className="flex items-center gap-1 w-fit">
                             <StatusIcon className="w-3 h-3" />

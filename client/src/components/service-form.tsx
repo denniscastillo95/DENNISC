@@ -91,7 +91,7 @@ export default function ServiceForm() {
     const subtotal = selectedServices.reduce((sum, { service, quantity }) => 
       sum + (parseFloat(service.price) * quantity), 0
     );
-    const taxRate = 0.16;
+    const taxRate = 0.15;
     const taxes = subtotal * taxRate;
     const total = subtotal + taxes;
     const estimatedTime = selectedServices.reduce((sum, { service, quantity }) => 
@@ -268,7 +268,7 @@ export default function ServiceForm() {
                     </div>
                     <div className="text-right flex items-center space-x-4">
                       <div>
-                        <p className="font-bold text-gray-900">${(parseFloat(service.price) * quantity).toFixed(2)}</p>
+                        <p className="font-bold text-gray-900">L {(parseFloat(service.price) * quantity).toFixed(2)}</p>
                         <p className="text-sm text-gray-600">{service.estimatedMinutes * quantity} min</p>
                       </div>
                       <Button 
@@ -294,7 +294,7 @@ export default function ServiceForm() {
                       onClick={() => addService(service.id)}
                     >
                       <Plus className="mr-2 h-4 w-4" />
-                      {service.name} - ${service.price} ({service.estimatedMinutes} min)
+                      {service.name} - L {service.price} ({service.estimatedMinutes} min)
                     </Button>
                   ))}
                 </div>
@@ -307,15 +307,15 @@ export default function ServiceForm() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Subtotal:</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>L {subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span>Impuestos (16%):</span>
-                    <span>${taxes.toFixed(2)}</span>
+                    <span>Impuestos (15%):</span>
+                    <span>L {taxes.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-lg font-bold border-t pt-2">
                     <span>Total:</span>
-                    <span className="text-car-blue">${total.toFixed(2)}</span>
+                    <span className="text-car-blue">L {total.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm text-gray-600">
                     <span>Tiempo estimado:</span>

@@ -21,8 +21,8 @@ export default function Sidebar() {
             <Car className="text-white text-lg" />
           </div>
           <div>
-            <h1 className="text-xl font-bold">AquaWash</h1>
-            <p className="text-blue-300 text-sm">Pro POS</p>
+            <h1 className="text-xl font-bold">Carwash Peña Blanca</h1>
+            <p className="text-blue-300 text-sm">Sistema POS</p>
           </div>
         </div>
       </div>
@@ -57,7 +57,7 @@ export default function Sidebar() {
             <User className="w-4 h-4 text-gray-600" />
           </div>
           <div>
-            <p className="text-sm font-medium">Carlos Mendez</p>
+            <p className="text-sm font-medium">Dennis Castillo</p>
             <p className="text-xs text-blue-300">Administrador</p>
           </div>
         </div>

@@ -95,7 +95,7 @@ export default function Sales() {
           <div className="text-right">
             <p className="text-sm text-gray-600">Total de ventas</p>
             <p className="text-2xl font-bold text-car-blue">
-              ${sales.reduce((sum, sale) => sum + parseFloat(sale.totalAmount), 0).toFixed(2)}
+              L {sales.reduce((sum, sale) => sum + parseFloat(sale.totalAmount), 0).toFixed(2)}
             </p>
           </div>
         </div>
@@ -132,7 +132,7 @@ export default function Sales() {
                       <TableCell className="font-medium">#{sale.id}</TableCell>
                       <TableCell>{formatDate(sale.saleDate)}</TableCell>
                       <TableCell className="font-medium">
-                        ${parseFloat(sale.totalAmount).toFixed(2)}
+                        L {parseFloat(sale.totalAmount).toFixed(2)}
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline">
